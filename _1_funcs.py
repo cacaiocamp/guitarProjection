@@ -37,12 +37,13 @@ def midi_input_thread(port_name):
                 #         y = gvars.midiValues.c14
                 #         gvars.l_spotlightPoints[0].curPos = (x, y)
                 elif msg.control == 14:
-                    lastVal = gvars.midiValues.c14
-                    gvars.midiValues.c14 = (msg.value + 1) - 63
-                    if len(gvars.l_spotlightPoints) != 0:
-                        x, y = gvars.l_spotlightPoints[0].curPos
-                        verticalChange = y + ((lastVal - gvars.midiValues.c14) * - 1)
-                        gvars.l_spotlightPoints[0].curPos = (x, verticalChange)
+                    if not gvars.resetingVerticaly:
+                        lastVal = gvars.midiValues.c14
+                        gvars.midiValues.c14 = (msg.value + 1) - 63
+                        if len(gvars.l_spotlightPoints) != 0:
+                            x, y = gvars.l_spotlightPoints[0].curPos
+                            verticalChange = y + ((lastVal - gvars.midiValues.c14) * - 1)
+                            gvars.l_spotlightPoints[0].curPos = (x, verticalChange)
                 # ME-------------------------------------------------------------
                 elif msg.control == 4:
                     gvars.midiValues.c4 = msg.value + 1
@@ -121,6 +122,11 @@ def midi_input_thread(port_name):
                 elif msg.control == 34:
                     if (gvars.scoreCurPage > 0) & (msg.value == 127):
                         gvars.scoreCurPage = gvars.scoreCurPage - 1
+                elif msg.control == 33:
+                    if msg.value == 127:
+                        gvars.resetingVerticaly = True
+                    else:
+                        gvars.resetingVerticaly = False
 
 def displayPage(pageNumber):
     page = gvars.scoreDoc.load_page(pageNumber)

@@ -15,6 +15,7 @@ midiValues = None
 l_pathways = []
 selectedPathwayId = None
 curSelectedPathwaysIds = []
+resetingVerticaly = False
 
 anchorPoint = None
 

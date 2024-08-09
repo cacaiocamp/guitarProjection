@@ -11,21 +11,21 @@ def pedalNull():
 def pedalTest():
     print("Pedal-Test - load pathways")
     
-    if gvars.pickleLoaded == False:
-        with open('savedPathways.pkl', 'rb') as file:
-            gvars.l_pathways = pickle.load(file)
-            print("loaded pathways file--------------------")
-
-            if len(gvars.l_pathways) > 0:
-                gvars.selectedPathwayId = 0
-        
-        gvars.anchorPoint = gvars.l_pathways[0].l_points[0]
-        gvars.pickleLoaded = True
-    else:
+    if gvars.pickleLoaded == True:
         with open('savedPathways_reloadNoOverwrite.pkl', 'wb') as file:
                 pickle.dump(gvars.l_pathways, file)
                 print(gvars.l_pathways)
-                print("saved pathways file--------------------")
+                print("saved reload pathways file--------------------")
+
+    with open('savedPathways.pkl', 'rb') as file:
+        gvars.l_pathways = pickle.load(file)
+        print("loaded pathways file--------------------")
+
+        if len(gvars.l_pathways) > 0:
+            gvars.selectedPathwayId = 0
+    
+    gvars.anchorPoint = gvars.l_pathways[0].l_points[0]
+    gvars.pickleLoaded = True
 
     gvars.l_spotlightPoints[0].spotlightSwitch(True)
     gvars.l_spotlightPoints[1].spotlightSwitch(True)
@@ -88,7 +88,7 @@ def pedal4():
     
     gvars.l_spotlightPoints[0].setCurPathway(0)
     gvars.l_spotlightPoints[0].cooldownCounter = 0
-    gvars.l_spotlightPoints[0].curPos = (10, 64)
+    gvars.l_spotlightPoints[0].curPos = (1, 64)
     gvars.l_spotlightPoints[1].setCurPathway(0)
     gvars.l_spotlightPoints[2].setCurPathway(None)
 
@@ -188,7 +188,8 @@ def pedal12():
 
     gvars.l_spotlightPoints[0].setCurPathway(6)
     x, y = gvars.l_spotlightPoints[0].curPos
-    gvars.l_spotlightPoints[0].curPos = (1, y)
+    gvars.l_spotlightPoints[0].cooldownCounter = 0
+    gvars.l_spotlightPoints[0].curPos = (64, y)
     gvars.l_spotlightPoints[1].setCurPathway(None)
     gvars.l_spotlightPoints[2].setCurPathway(None)
 
@@ -204,13 +205,17 @@ def pedal12():
 
 def pedal14():
     print("Pedal 14")
-    gvars.l_spotlightPoints[0].spotlightSwitch(False)
+    gvars.l_spotlightPoints[0].spotlightSwitch(True)
     gvars.l_spotlightPoints[1].spotlightSwitch(False)
-    gvars.l_spotlightPoints[2].spotlightSwitch(True)
-
-    gvars.l_spotlightPoints[0].setCurPathway(None)
+    gvars.l_spotlightPoints[2].spotlightSwitch(False)
+    
+    gvars.l_pathways[7].movePathwayToCurSpotlightPos(gvars.l_spotlightPoints[0].getAbsolutePoint())
+    gvars.l_spotlightPoints[0].setCurPathway(7)
+    gvars.l_spotlightPoints[0].cooldownCounter = 0
+    gvars.l_spotlightPoints[0].curPos = (1, 64)
     gvars.l_spotlightPoints[1].setCurPathway(None)
-    gvars.l_spotlightPoints[2].setCurPathway(7)
+    # gvars.l_spotlightPoints[2].setCurPathway(7)
+    gvars.l_spotlightPoints[2].setCurPathway(None)
 
 # def pedal15():
 #     print("Pedal 15")
@@ -224,13 +229,17 @@ def pedal14():
     
 def pedal16():
     print("Pedal 16")
-    gvars.l_spotlightPoints[0].spotlightSwitch(False)
+    gvars.l_spotlightPoints[0].spotlightSwitch(True)
     gvars.l_spotlightPoints[1].spotlightSwitch(False)
-    gvars.l_spotlightPoints[2].spotlightSwitch(True)
+    gvars.l_spotlightPoints[2].spotlightSwitch(False)
 
-    gvars.l_spotlightPoints[0].setCurPathway(None)
+    gvars.l_pathways[8].movePathwayToCurSpotlightPos(gvars.l_spotlightPoints[0].getAbsolutePoint())
+    gvars.l_spotlightPoints[0].setCurPathway(8)
+    gvars.l_spotlightPoints[0].curPos = (127, 64)
+    # gvars.l_spotlightPoints[0].setCurPathway(None)
     gvars.l_spotlightPoints[1].setCurPathway(None)
-    gvars.l_spotlightPoints[2].setCurPathway(8)
+    # gvars.l_spotlightPoints[2].setCurPathway(8)
+    gvars.l_spotlightPoints[2].setCurPathway(None)
     
 # def pedal17():
 #     print("Pedal 17")
