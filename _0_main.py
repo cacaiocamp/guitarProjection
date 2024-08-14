@@ -114,6 +114,8 @@ try:
             if(nextRoi == -1):
                 nextRoi = len(gvars.l_pathways) - 1
             gvars.selectedPathwayId = nextRoi
+        elif key == ord('='): # rerender spotlights
+            gvars.client.send_message("/rerender", 1)
         elif key == ord('p'): # save pathways in pickle
             with open('savedPathways.pkl', 'wb') as file:
                 pickle.dump(gvars.l_pathways, file)

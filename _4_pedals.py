@@ -235,6 +235,7 @@ def pedal16():
 
     gvars.l_pathways[8].movePathwayToCurSpotlightPos(gvars.l_spotlightPoints[0].getAbsolutePoint())
     gvars.l_spotlightPoints[0].setCurPathway(8)
+    gvars.l_spotlightPoints[0].cooldownCounter = 0
     gvars.l_spotlightPoints[0].curPos = (127, 64)
     # gvars.l_spotlightPoints[0].setCurPathway(None)
     gvars.l_spotlightPoints[1].setCurPathway(None)

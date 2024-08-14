@@ -37,9 +37,9 @@ def midi_input_thread(port_name):
                 #         y = gvars.midiValues.c14
                 #         gvars.l_spotlightPoints[0].curPos = (x, y)
                 elif msg.control == 14:
+                    lastVal = gvars.midiValues.c14
+                    gvars.midiValues.c14 = (msg.value + 1) - 63
                     if not gvars.resetingVerticaly:
-                        lastVal = gvars.midiValues.c14
-                        gvars.midiValues.c14 = (msg.value + 1) - 63
                         if len(gvars.l_spotlightPoints) != 0:
                             x, y = gvars.l_spotlightPoints[0].curPos
                             verticalChange = y + ((lastVal - gvars.midiValues.c14) * - 1)
@@ -86,17 +86,22 @@ def midi_input_thread(port_name):
 
                     gvars.client.send_message("/rh/size", convertedVal)
                     gvars.client.send_message("/lh/size", convertedVal)
-                # brightness - size - voluta
-                elif msg.control == 8:
-                    gvars.midiValues.c8 = msg.value
-                    convertedVal = abs(float(msg.value/126) - 1)
-
-                    gvars.client.send_message("/vl/brightness", convertedVal)
+                # Color
                 elif msg.control == 19:
-                    gvars.midiValues.c19 = msg.value
-                    convertedVal = (msg.value + 1)/127
+                    if len(gvars.l_spotlightPoints) != 0:
+                        convertedVal = float(msg.value/126)
 
-                    gvars.client.send_message("/vl/size", convertedVal)
+                        gvars.client.send_message("/color/red", convertedVal)
+                elif msg.control == 20:
+                    if len(gvars.l_spotlightPoints) != 0:
+                        convertedVal = float(msg.value/126)
+
+                        gvars.client.send_message("/color/green", convertedVal)
+                elif msg.control == 21:
+                    if len(gvars.l_spotlightPoints) != 0:
+                        convertedVal = float(msg.value/126)
+
+                        gvars.client.send_message("/color/blue", convertedVal)
 
                 # rotate - move
                 elif msg.control == 12:
