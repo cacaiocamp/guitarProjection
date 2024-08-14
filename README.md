@@ -1,12 +1,12 @@
 # guitarProjection - Toca
-Alternative to guitarHands for Toca, a piece for guitar, hands and projection.
+Alternative to [_guitarHands_](https://github.com/cacaiocamp/guitarHands) for Toca, a piece for guitar, hands and interactive projection.
 
-Its purpose is to create a simple performance interface where 2d paths can be drawn, through which projected spotlights positions can be controled. In that way, a single knob of a controller can be mapped to two dimensions of movement, making the lights performance of the piece easier.
+Its purpose is to create a simple performance interface where 2d paths can be drawn, through which projected spotlights positions can be controlled. In that way, a single knob of a controller can be mapped to two dimensions of movement, making the lights performance of the piece easier.
 
 ![spotlightsExample](examples/example1.gif)
 
 ## Contents
-This performance interface for now consists in two codes: the main python code and a p4 code for the spotlights projection. This was made to facilitate a future merge between guitarProjection and guitarHands, where the tracking of the hands will be a part of the piece while still allowing other types of light expressive articulations.
+This performance interface for now consists of two codes: the main python code and a p4 code for the spotlights projection. This was made to facilitate a future merge between guitarProjection and guitarHands, where the tracking of the hands will be a part of the piece while still allowing other types of expressive light articulations.
 
 ## Structure
 The code was structured in the following way (maybe not yet the most effective one):
