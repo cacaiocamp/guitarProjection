@@ -29,4 +29,5 @@ The only maybe confusing functionality added is the [_cooldown_](https://github.
 I wanted to use the same knob to control each light for the piece's whole duration. Than, as each hand passes through many pathways, the cooldown purpose is to allow the reset of the knob positioning while not changing the current light position when changes or movements of the spotlight's curPathway happen. This gives the performer sometime to move the knob, allowing to restart the light movement at the beggining or end of the pathways, for example. 
 
 This is represented with a white square around the spotlight circle.
+
 ![cooldownExample](examples/example2.gif)
