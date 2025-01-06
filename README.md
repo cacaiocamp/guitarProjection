@@ -30,3 +30,8 @@ I wanted to use the same knob to control each light for the pieces whole duratio
 
 This is represented with a white square around the spotlight circle.
 ![cooldownExample](examples/example2.gif)
+
+### Positionings
+The position of the projector in relation to the performer is really important for the piece. As this will vary with the size of the space, the projector used, the instrument used, the proportions of the performer's body, etc, the use of a mapping between a IR camera and the P4 projection sketch is advised for more acurate results.
+
+Using savedPathways.pki as a base, match the staged positionings of the performer and the projector. Register the distance between the performer and the projector as well as the height of the projectors support. After that, always using the same numbers and the same pathways file will assure the correct positioning of te spotlights.
