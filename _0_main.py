@@ -7,8 +7,15 @@ import _1_funcs as funcs
 import _2_classes as classes
 import _3_gvars as gvars
 
-midi_name = 'WORLDE easy control 0'
+#midi_name = 'WORLDE easy control 0'
+midi_name = 'X-TOUCH COMPACT'
+
+#gvars.controller = "WORLDE EASY CONTROL 0"
+gvars.controller = "BEHRINGER XTOUCH COMPACT"
+
+usingCap = True
 gvars.midiValues = classes.MidiValuesStruct()
+gvars.usingCooldown = False
 
 mdToProject = classes.SpotlightPoint(0)
 meToProject = classes.SpotlightPoint(1)
@@ -17,16 +24,24 @@ gvars.l_spotlightPoints.append(mdToProject)
 gvars.l_spotlightPoints.append(meToProject)
 gvars.l_spotlightPoints.append(vlToProject)
 
+inportMidi, outportMidi = funcs.findPorts(midi_name)
+gvars.outportMidi = outportMidi
+
 try:
-    midi_thread = threading.Thread(target=funcs.midi_input_thread, args=(midi_name,))
-    midi_thread.start()
+    midi_thread_input = threading.Thread(target=funcs.midi_input_thread, args=(inportMidi,))
+    midi_thread_input.start()
 
     timingThread = threading.Thread(target=funcs.timingThread)
     timingThread.start()
 
+    lerpingThread = threading.Thread(target=funcs.lerpPosChangeThread) 
+    lerpingThread.start()
+
+    # change to appropriate camera index if needed, use funcs.listCameras() and funcs.searchCameras() to help find it
     cap = cv2.VideoCapture(1)
 
     if not cap.isOpened():
+        usingCap = False
         raise Exception("Error: Camera not accessible.")
     
     cv2.namedWindow('clahe')
@@ -121,7 +136,7 @@ try:
                 pickle.dump(gvars.l_pathways, file)
                 print(gvars.l_pathways)
                 print("saved pathways file--------------------")
-        elif key == ord('ç'): # load pathways from pickle
+        elif key == ord('l'): # load pathways from pickle
             with open('savedPathways.pkl', 'rb') as file:
                 gvars.l_pathways = pickle.load(file)
                 print("loaded pathways file--------------------")
@@ -142,5 +157,5 @@ finally:
     
     # Close all OpenCV windows
     cv2.destroyAllWindows()
-    midi_thread.join()
+    midi_thread_input.join()
     timingThread.join()

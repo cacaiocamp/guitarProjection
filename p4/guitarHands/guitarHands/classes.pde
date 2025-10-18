@@ -1,7 +1,7 @@
 class ItemToTrack
 {
     PGraphics spotlight;
-    public boolean isDrawing = false;
+    public boolean isDrawing = true;
     public PVector point = new PVector(300, 220);
     public PVector size = new PVector(0, 0);
     public int spotlightRadius = spotlightSize*3;

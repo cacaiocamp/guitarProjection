@@ -5,6 +5,38 @@ import numpy as np
 import _3_gvars as gvars
 import _4_pedals as pedals
 
+def listCameras(max_tested=3):
+    availableCameras = []
+    for i in range(max_tested):
+        cap = cv2.VideoCapture(i)
+        if cap.isOpened():
+            availableCameras.append(i)
+            cap.release()
+    return availableCameras
+
+def searchCameras():
+    cameras = listCameras()
+    if cameras:
+        print("Available cameras:")
+        for cam in cameras:
+            print(f"  - Camera index {cam}")
+
+
+def findPorts(controlName):
+    inputs = mido.get_input_names()
+    outputs = mido.get_output_names()
+    in_port = next((n for n in inputs if controlName in n.upper()), None)
+    out_port = next((n for n in outputs if controlName in n.upper()), None)
+    return in_port, out_port
+
+def searchPorts():
+    print('MIDI inputs:')
+    for n in mido.get_input_names():
+        print('  ', n)
+    print('MIDI outputs:')
+    for n in mido.get_output_names():
+        print('  ', n)
+
 def timingThread():
     while True:
         for spotlight in gvars.l_spotlightPoints:
@@ -16,122 +48,226 @@ def timingThread():
 
         time.sleep(0.01)
 
+def lerpPosChangeThread():
+    while True:
+        for spotlight in gvars.l_spotlightPoints:
+            if spotlight.lerpPosCounter > 0:
+                spotlight.curPos = (spotlight.curPos[0] + spotlight.difToTargetX, spotlight.curPos[1] + spotlight.difToTargetY)
+                spotlight.lerpPosCounter = spotlight.lerpPosCounter + 1
+
+                if spotlight.lerpPosCounter > gvars.lerpPosTime:
+                    spotlight.lerpPosCounter = 0
+
+        time.sleep(0.001)
+
+def midiOutput(controlCh, val):
+    with mido.open_output(gvars.outportMidi) as outport:
+        msg = mido.Message('control_change', channel=0, control=controlCh, value=val)
+        #print('Sending:', msg)
+        outport.send(msg)   
 
 def midi_input_thread(port_name):
     with mido.open_input(port_name) as inport:
         for msg in inport:
             if msg.type == 'control_change':
                 # print(f"Control change: {msg.control} with value {msg.value}")
-                # MD-------------------------------------------------------------
-                if msg.control == 3:
-                    gvars.midiValues.c3 = msg.value + 1
-                    if len(gvars.l_spotlightPoints) != 0:
-                        if gvars.l_spotlightPoints[0].cooldownCounter == -1:
-                            x, y = gvars.l_spotlightPoints[0].curPos
-                            x = gvars.midiValues.c3
-                            gvars.l_spotlightPoints[0].curPos = (x, y)
-                # elif msg.control == 14:
-                #     gvars.midiValues.c14 = msg.value + 1
-                #     if len(gvars.l_spotlightPoints) != 0:
-                #         x, y = gvars.l_spotlightPoints[0].curPos
-                #         y = gvars.midiValues.c14
-                #         gvars.l_spotlightPoints[0].curPos = (x, y)
-                elif msg.control == 14:
-                    lastVal = gvars.midiValues.c14
-                    gvars.midiValues.c14 = (msg.value + 1) - 63
-                    if not gvars.resetingVerticaly:
+                if gvars.controller == "WORLDE EASY CONTROL 0":
+                    # MD-------------------------------------------------------------
+                    if msg.control == 3:
+                        gvars.midiValues.c3 = msg.value + 1
                         if len(gvars.l_spotlightPoints) != 0:
-                            x, y = gvars.l_spotlightPoints[0].curPos
-                            verticalChange = y + ((lastVal - gvars.midiValues.c14) * - 1)
-                            gvars.l_spotlightPoints[0].curPos = (x, verticalChange)
-                # ME-------------------------------------------------------------
-                elif msg.control == 4:
-                    gvars.midiValues.c4 = msg.value + 1
-                    if len(gvars.l_spotlightPoints) != 0:
-                        if gvars.l_spotlightPoints[1].cooldownCounter == -1:
+                            if (gvars.l_spotlightPoints[0].cooldownCounter == -1) | (gvars.usingCooldown == False):
+                                x, y = gvars.l_spotlightPoints[0].curPos
+                                x = gvars.midiValues.c3
+                                gvars.l_spotlightPoints[0].curPos = (x, y)
+                    elif msg.control == 14:
+                        lastVal = gvars.midiValues.c14
+                        gvars.midiValues.c14 = (msg.value + 1) - 63
+                        if not gvars.resetingVerticaly:
+                            if len(gvars.l_spotlightPoints) != 0:
+                                x, y = gvars.l_spotlightPoints[0].curPos
+                                verticalChange = y + ((lastVal - gvars.midiValues.c14) * - 1)
+                                gvars.l_spotlightPoints[0].curPos = (x, verticalChange)
+                    # ME-------------------------------------------------------------
+                    elif msg.control == 4:
+                        gvars.midiValues.c4 = msg.value + 1
+                        if len(gvars.l_spotlightPoints) != 0:
+                            if (gvars.l_spotlightPoints[1].cooldownCounter == -1) | (gvars.usingCooldown == False):
+                                x, y = gvars.l_spotlightPoints[1].curPos
+                                x = gvars.midiValues.c4
+                                gvars.l_spotlightPoints[1].curPos = (x, y)
+                    elif msg.control == 15:
+                        gvars.midiValues.c15 = msg.value + 1
+                        if len(gvars.l_spotlightPoints) != 0:
                             x, y = gvars.l_spotlightPoints[1].curPos
-                            x = gvars.midiValues.c4
+                            y = gvars.midiValues.c15
                             gvars.l_spotlightPoints[1].curPos = (x, y)
-                elif msg.control == 15:
-                    gvars.midiValues.c15 = msg.value + 1
-                    if len(gvars.l_spotlightPoints) != 0:
-                        x, y = gvars.l_spotlightPoints[1].curPos
-                        y = gvars.midiValues.c15
-                        gvars.l_spotlightPoints[1].curPos = (x, y)
-                # # V-------------------------------------------------------------
-                elif msg.control == 5:
-                    gvars.midiValues.c5 = msg.value + 1
-                    if len(gvars.l_spotlightPoints) != 0:
-                        if gvars.l_spotlightPoints[2].cooldownCounter == -1:
+                    # # V-------------------------------------------------------------
+                    elif msg.control == 5:
+                        gvars.midiValues.c5 = msg.value + 1
+                        if len(gvars.l_spotlightPoints) != 0:
+                            if (gvars.l_spotlightPoints[2].cooldownCounter == -1) | (gvars.usingCooldown == False):
+                                x, y = gvars.l_spotlightPoints[2].curPos
+                                x = gvars.midiValues.c5
+                                gvars.l_spotlightPoints[2].curPos = (x, y)
+                    elif msg.control == 16:
+                        gvars.midiValues.c16 = msg.value + 1
+                        if len(gvars.l_spotlightPoints) != 0:
                             x, y = gvars.l_spotlightPoints[2].curPos
-                            x = gvars.midiValues.c5
+                            y = gvars.midiValues.c16
                             gvars.l_spotlightPoints[2].curPos = (x, y)
-                elif msg.control == 16:
-                    gvars.midiValues.c16 = msg.value + 1
-                    if len(gvars.l_spotlightPoints) != 0:
-                        x, y = gvars.l_spotlightPoints[2].curPos
-                        y = gvars.midiValues.c16
-                        gvars.l_spotlightPoints[2].curPos = (x, y)
-                
-                # brightness - size - hands
-                elif msg.control == 7:
-                    gvars.midiValues.c7 = msg.value
-                    convertedVal = abs(float(msg.value/126) - 1)
+                    
+                    # brightness - size - hands
+                    elif msg.control == 7:
+                        gvars.midiValues.c7 = msg.value
+                        convertedVal = abs(float(msg.value/126) - 1)
 
-                    gvars.client.send_message("/rh/brightness", convertedVal)
-                    gvars.client.send_message("/lh/brightness", convertedVal)
-                elif msg.control == 18:
-                    gvars.midiValues.c18 = msg.value
-                    convertedVal = (msg.value + 1)/127
+                        gvars.client.send_message("/rh/brightness", convertedVal)
+                        gvars.client.send_message("/lh/brightness", convertedVal)
+                    elif msg.control == 18:
+                        gvars.midiValues.c18 = msg.value
+                        convertedVal = (msg.value + 1)/127
 
-                    gvars.client.send_message("/rh/size", convertedVal)
-                    gvars.client.send_message("/lh/size", convertedVal)
-                # Color
-                elif msg.control == 19:
-                    if len(gvars.l_spotlightPoints) != 0:
-                        convertedVal = float(msg.value/126)
+                        gvars.client.send_message("/rh/size", convertedVal)
+                        gvars.client.send_message("/lh/size", convertedVal)
+                    # Color
+                    elif msg.control == 19:
+                        if len(gvars.l_spotlightPoints) != 0:
+                            convertedVal = float(msg.value/127)
 
-                        gvars.client.send_message("/color/red", convertedVal)
-                elif msg.control == 20:
-                    if len(gvars.l_spotlightPoints) != 0:
-                        convertedVal = float(msg.value/126)
+                            gvars.client.send_message("/color/red", convertedVal)
+                    elif msg.control == 20:
+                        if len(gvars.l_spotlightPoints) != 0:
+                            convertedVal = float(msg.value/127)
+                            gvars.client.send_message("/color/green", convertedVal)
+                    elif msg.control == 21:
+                        if len(gvars.l_spotlightPoints) != 0:
+                            convertedVal = float(msg.value/127)
 
-                        gvars.client.send_message("/color/green", convertedVal)
-                elif msg.control == 21:
-                    if len(gvars.l_spotlightPoints) != 0:
-                        convertedVal = float(msg.value/126)
+                            gvars.client.send_message("/color/blue", convertedVal)
 
-                        gvars.client.send_message("/color/blue", convertedVal)
+                    # rotate - move
+                    elif msg.control == 12:
+                        midVal = msg.value - 63
+                        rotateAllPathways(midVal)
+                        gvars.midiValues.c12 = midVal
+                        updateSpotlightsBorderValues()
+                    elif msg.control == 13:
+                        midVal = msg.value - 63
+                        moveAllPathways((midVal - gvars.midiValues.c13), 0)
+                        gvars.midiValues.c13 = midVal
+                        updateSpotlightsBorderValues()
+                    elif msg.control == 22:
+                        midVal = (msg.value - 63) * -1
+                        moveAllPathways(0, (midVal - gvars.midiValues.c22))
+                        gvars.midiValues.c22 = midVal
+                        updateSpotlightsBorderValues()
+                    # pass pages
+                    elif msg.control == 35:
+                        if (gvars.scoreCurPage < gvars.scoreNumPages - 1) & (msg.value == 127):
+                            gvars.scoreCurPage = gvars.scoreCurPage + 1
+                    elif msg.control == 34:
+                        if (gvars.scoreCurPage > 0) & (msg.value == 127):
+                            gvars.scoreCurPage = gvars.scoreCurPage - 1
+                    elif msg.control == 33:
+                        if msg.value == 127:
+                            gvars.resetingVerticaly = True
+                        else:
+                            gvars.resetingVerticaly = False
 
-                # rotate - move
-                elif msg.control == 12:
-                    midVal = msg.value - 63
-                    rotateAllPathways(midVal)
-                    gvars.midiValues.c12 = midVal
-                    updateSpotlightsBorderValues()
-                elif msg.control == 13:
-                    midVal = msg.value - 63
-                    moveAllPathways((midVal - gvars.midiValues.c13), 0)
-                    gvars.midiValues.c13 = midVal
-                    updateSpotlightsBorderValues()
-                elif msg.control == 22:
-                    midVal = (msg.value - 63) * -1
-                    moveAllPathways(0, (midVal - gvars.midiValues.c22))
-                    gvars.midiValues.c22 = midVal
-                    updateSpotlightsBorderValues()
+                elif gvars.controller == "BEHRINGER XTOUCH COMPACT":
+                    # MD-------------------------------------------------------------
+                    if msg.control == 64:
+                        gvars.midiValues.c64 = msg.value + 1
+                        if len(gvars.l_spotlightPoints) != 0:
+                            if (gvars.l_spotlightPoints[0].cooldownCounter == -1) | (gvars.usingCooldown == False):
+                                x, y = gvars.l_spotlightPoints[0].curPos
+                                x = gvars.midiValues.c64
 
-                # pass pages
-                elif msg.control == 35:
-                    if (gvars.scoreCurPage < gvars.scoreNumPages - 1) & (msg.value == 127):
-                        gvars.scoreCurPage = gvars.scoreCurPage + 1
-                elif msg.control == 34:
-                    if (gvars.scoreCurPage > 0) & (msg.value == 127):
-                        gvars.scoreCurPage = gvars.scoreCurPage - 1
-                elif msg.control == 33:
-                    if msg.value == 127:
-                        gvars.resetingVerticaly = True
-                    else:
-                        gvars.resetingVerticaly = False
+                                gvars.l_spotlightPoints[0].calculateAndStartLerpCurPos(x, y)
+                                #gvars.l_spotlightPoints[0].curPos = (x, y)
+                    elif msg.control == 14:
+                        #lastVal = gvars.midiValues.c14
+                        #gvars.midiValues.c14 = (msg.value + 1) - 63
+                        gvars.midiValues.c14 = msg.value + 1
+                        if not gvars.resetingVerticaly:
+                            if len(gvars.l_spotlightPoints) != 0:
+                                x, y = gvars.l_spotlightPoints[0].curPos
+                                y = gvars.midiValues.c14
+                                #verticalChange = y + ((lastVal - gvars.midiValues.c14) * - 1)
+                                gvars.l_spotlightPoints[0].calculateAndStartLerpCurPos(x, y)
+                                #gvars.l_spotlightPoints[0].curPos = (x, verticalChange)
+                    # ME-------------------------------------------------------------
+                    elif msg.control == 65:
+                        gvars.midiValues.c65 = msg.value + 1
+                        if len(gvars.l_spotlightPoints) != 0:
+                            if (gvars.l_spotlightPoints[1].cooldownCounter == -1) | (gvars.usingCooldown == False):
+                                x, y = gvars.l_spotlightPoints[1].curPos
+                                x = gvars.midiValues.c65
+                                gvars.l_spotlightPoints[1].calculateAndStartLerpCurPos(x, y)
+                                #gvars.l_spotlightPoints[1].curPos = (x, y)
+                    elif msg.control == 15:
+                        gvars.midiValues.c15 = msg.value + 1
+                        if len(gvars.l_spotlightPoints) != 0:
+                            x, y = gvars.l_spotlightPoints[1].curPos
+                            y = gvars.midiValues.c15
+                            gvars.l_spotlightPoints[1].calculateAndStartLerpCurPos(x, y)
+                            #gvars.l_spotlightPoints[1].curPos = (x, y)
+
+
+                    # brightness - size - hands
+                    elif msg.control == 18:
+                        gvars.midiValues.c18 = msg.value
+                        convertedVal = abs(float(msg.value/126) - 1)
+                        gvars.client.send_message("/rh/brightness", convertedVal)
+                        gvars.client.send_message("/lh/brightness", convertedVal)
+                    elif msg.control == 17:
+                        gvars.midiValues.c17 = msg.value
+                        convertedVal = (msg.value + 1)/127
+                        gvars.client.send_message("/rh/size", convertedVal)
+                        gvars.client.send_message("/lh/size", convertedVal)
+                    # Color
+                    elif msg.control == 81:
+                        if len(gvars.l_spotlightPoints) != 0:
+                            convertedVal = float(msg.value/126)
+                            gvars.client.send_message("/color/red", convertedVal)
+                    elif msg.control == 83:
+                        if len(gvars.l_spotlightPoints) != 0:
+                            convertedVal = float(msg.value/126)
+                            gvars.client.send_message("/color/green", convertedVal)
+                    elif msg.control == 85:
+                        if len(gvars.l_spotlightPoints) != 0:
+                            convertedVal = float(msg.value/126)
+                            gvars.client.send_message("/color/blue", convertedVal)
+                    # rotate - move
+                    elif msg.control == 67:
+                        midVal = msg.value - 63
+                        rotateAllPathways(midVal)
+                        gvars.midiValues.c67 = midVal
+                        updateSpotlightsBorderValues()
+                    elif msg.control == 66:
+                        midVal = msg.value - 63
+                        moveAllPathways((midVal - gvars.midiValues.c66), 0)
+                        gvars.midiValues.c66 = midVal
+                        updateSpotlightsBorderValues()
+                    elif msg.control == 16:
+                        midVal = (msg.value - 63) * -1
+                        moveAllPathways(0, (midVal - gvars.midiValues.c16))
+                        gvars.midiValues.c16 = midVal
+                        updateSpotlightsBorderValues()
+                    # pass pages
+                    elif msg.control == 101:
+                        if (gvars.scoreCurPage < gvars.scoreNumPages - 1) & (msg.value == 127):
+                            gvars.scoreCurPage = gvars.scoreCurPage + 1
+                    elif msg.control == 100:
+                        if (gvars.scoreCurPage > 0) & (msg.value == 127):
+                            gvars.scoreCurPage = gvars.scoreCurPage - 1
+                    elif msg.control == 102:
+                        if msg.value == 127:
+                            gvars.resetingVerticaly = True
+                        else:
+                            gvars.resetingVerticaly = False
+
 
 def displayPage(pageNumber):
     page = gvars.scoreDoc.load_page(pageNumber)
@@ -194,7 +330,8 @@ def drawPathways(frameD):
         pathway.drawPointsAndPath(frameD, isCurPathway, isSelected)
 
 def mapMidiToRotation(midiVal):
-    midiValDiff = midiVal - gvars.midiValues.c12
+    #midiValDiff = midiVal - gvars.midiValues.c12
+    midiValDiff = midiVal - gvars.midiValues.c67
     degrees = midiValDiff * (90 / 126)
     return degrees
 

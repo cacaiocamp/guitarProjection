@@ -5,6 +5,10 @@ import spout.*;
 OscP5 oscP5;
 Spout spout;
 
+float colorR = 255;
+float colorG = 255;
+float colorB = 220;
+
 int pointX = -1;
 int pointY = -1;
 int spotlightSize = 80;
@@ -64,8 +68,8 @@ void draw() {
 }
 
 void drawSpotlight(PGraphics pg, float x, float y, float radius) {
-  int centerColor = color(255, 255, 220); 
-  int edgeColor = color(255, 255, 220, 0); 
+  int centerColor = color(colorR, colorG, colorB); 
+  int edgeColor = color(colorR, colorG, colorB, 0); 
 
   for (float r = radius; r > 0; r--) {
     float inter = map(r, 0, radius, 1, 0);
@@ -173,6 +177,48 @@ void oscEvent(OscMessage msg) {
     if (msg.checkTypetag("i")) { 
       int receivedMessage = msg.get(0).intValue();
       vecItensToTrack[2].isDrawing = boolean(receivedMessage);
+    }
+  }
+  
+  // Color
+  else if (msg.checkAddrPattern("/color/red")) {
+    if (msg.checkTypetag("f")) {
+      float receivedMessage = msg.get(0).floatValue();
+      colorR = receivedMessage * 255;
+    }
+  }
+  else if (msg.checkAddrPattern("/color/green")) {
+    if (msg.checkTypetag("f")) {
+      float receivedMessage = msg.get(0).floatValue();
+      colorG = receivedMessage * 255;
+    }
+  }
+  else if (msg.checkAddrPattern("/color/blue")) {
+    if (msg.checkTypetag("f")) {
+      float receivedMessage = msg.get(0).floatValue();
+      colorB = receivedMessage * 255;
+    }
+  }
+  
+  else if (msg.checkAddrPattern("/rerender")) {
+    if (msg.checkTypetag("i")) {
+      int receivedMessage = msg.get(0).intValue();
+      
+      if(receivedMessage == 1){
+      for(int index = 0; index < vecItensToTrack.length; index++){
+          vecItensToTrack[index] = new ItemToTrack();
+          vecItensToTrack[index].spotlightRadius = spotlightRadiusSize[index];
+          vecItensToTrack[index].size = new PVector(vecItensToTrack[index].spotlightRadius*3, vecItensToTrack[index].spotlightRadius*3);
+          vecItensToTrack[index].spotlight = createGraphics(int(vecItensToTrack[index].size.x), int(vecItensToTrack[index].size.y));
+          vecItensToTrack[index].spotlight.beginDraw();
+          vecItensToTrack[index].spotlight.background(0, 0); 
+          drawSpotlight(vecItensToTrack[index].spotlight, vecItensToTrack[index].spotlightRadius * 3/2, vecItensToTrack[index].spotlightRadius * 3/2, vecItensToTrack[index].spotlightRadius);
+          vecItensToTrack[index].spotlight.endDraw();
+  
+          // Apply blur to the offscreen graphics
+          vecItensToTrack[index].spotlight.filter(BLUR, 15); 
+        } 
+      }
     }
   }
 }

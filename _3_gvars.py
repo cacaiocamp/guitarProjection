@@ -1,9 +1,11 @@
 from pythonosc import udp_client
 
+controller = ""
+
 curPedal = -2
 pedalToJump = -2
 
-scorePath = r'C:\\Users\\gudig\\OneDrive\\Documentos\\python\\guitarProjection\\toca_secao1.pdf'
+scorePath = r'C:\\Users\\gudig\\Documents\\python\\guitarProjection\\toca_secao1.pdf'
 scoreWindowWidth = 0
 scoreWindowHeight = 0
 scoreDoc = None
@@ -11,6 +13,7 @@ scoreNumPages = 0
 scoreCurPage = 0
 
 midiValues = None
+outportMidi = None
 
 l_pathways = []
 selectedPathwayId = None
@@ -20,6 +23,7 @@ resetingVerticaly = False
 anchorPoint = None
 
 projectingPoints = False
+usingCooldown = False
 
 l_spotlightPoints = []
 
@@ -30,6 +34,7 @@ port = 8000
 client = udp_client.SimpleUDPClient(ip, port)
 
 cooldownTime = 100
+lerpPosTime = 10
 
 pickleLoaded = False
 

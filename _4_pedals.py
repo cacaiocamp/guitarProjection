@@ -29,14 +29,27 @@ def pedalTest():
 
     gvars.l_spotlightPoints[0].spotlightSwitch(True)
     gvars.l_spotlightPoints[1].spotlightSwitch(True)
-    gvars.l_spotlightPoints[2].spotlightSwitch(True)
+    gvars.l_spotlightPoints[2].spotlightSwitch(False)
 
     gvars.l_spotlightPoints[0].setCurPathway(0)
     gvars.l_spotlightPoints[1].setCurPathway(0)
     gvars.l_spotlightPoints[2].setCurPathway(0)
+    
+    if(gvars.controller == "BEHRINGER XTOUCH COMPACT"):
+        funcs.midiOutput(14, 63) # MD centro
+        gvars.l_spotlightPoints[0].curPos = (1, 64)
+        funcs.midiOutput(15, 63) # ME centro
+        funcs.midiOutput(65, 127) # ME direita
+        gvars.l_spotlightPoints[1].curPos = (127, 64)
+        funcs.midiOutput(16, 63) # pathways vertical centro
+        funcs.midiOutput(66, 63) # pathways horizontal centro
+        funcs.midiOutput(67, 63) # pathways rotacao centro
 
 def pedal0():
     print("Pedal 0")
+    if(gvars.controller == "BEHRINGER XTOUCH COMPACT"):
+        funcs.midiOutput(64, 7) # MD esquerda
+
     gvars.l_spotlightPoints[0].spotlightSwitch(False)
     gvars.l_spotlightPoints[1].spotlightSwitch(False)
     gvars.l_spotlightPoints[2].spotlightSwitch(False)
@@ -67,6 +80,8 @@ def pedal2():
 
 def pedal3():
     print("Pedal 3")
+    if(gvars.controller == "BEHRINGER XTOUCH COMPACT"):
+        funcs.midiOutput(64, 1) # MD reset
     gvars.l_spotlightPoints[0].spotlightSwitch(True)
     gvars.l_spotlightPoints[1].spotlightSwitch(True)
     gvars.l_spotlightPoints[2].spotlightSwitch(False)
@@ -82,6 +97,8 @@ def pedal3():
 
 def pedal4():
     print("Pedal 4")
+    if(gvars.controller == "BEHRINGER XTOUCH COMPACT"):
+        funcs.midiOutput(64, 1) # MD reset
     gvars.l_spotlightPoints[0].spotlightSwitch(True)
     gvars.l_spotlightPoints[1].spotlightSwitch(True)
     gvars.l_spotlightPoints[2].spotlightSwitch(False)
@@ -136,6 +153,8 @@ def pedal4():
 
 def pedal9():
     print("Pedal 9")
+    if(gvars.controller == "BEHRINGER XTOUCH COMPACT"):
+        funcs.midiOutput(64, 64) # MD reset
     gvars.l_spotlightPoints[0].spotlightSwitch(True)
     gvars.l_spotlightPoints[1].spotlightSwitch(False)
     gvars.l_spotlightPoints[2].spotlightSwitch(False)
@@ -149,6 +168,8 @@ def pedal9():
 
 def pedal10():
     print("Pedal 10")
+    if(gvars.controller == "BEHRINGER XTOUCH COMPACT"):
+        funcs.midiOutput(64, 127) # MD reset
     gvars.l_spotlightPoints[0].spotlightSwitch(True)
     gvars.l_spotlightPoints[1].spotlightSwitch(False)
     gvars.l_spotlightPoints[2].spotlightSwitch(False)
@@ -164,6 +185,8 @@ def pedal10():
 
 def pedal10emeio():
     print("Pedal 10 e meio")
+    if(gvars.controller == "BEHRINGER XTOUCH COMPACT"):
+        funcs.midiOutput(64, 1) # MD reset
     gvars.l_spotlightPoints[0].spotlightSwitch(True)
     gvars.l_spotlightPoints[1].spotlightSwitch(False)
     gvars.l_spotlightPoints[2].spotlightSwitch(False)
@@ -182,6 +205,8 @@ def pedal10emeio():
 
 def pedal12():
     print("Pedal 12")
+    if(gvars.controller == "BEHRINGER XTOUCH COMPACT"):
+        funcs.midiOutput(64, 64) # MD reset
     gvars.l_spotlightPoints[0].spotlightSwitch(True)
     gvars.l_spotlightPoints[1].spotlightSwitch(False)
     gvars.l_spotlightPoints[2].spotlightSwitch(False)
@@ -205,6 +230,8 @@ def pedal12():
 
 def pedal14():
     print("Pedal 14")
+    if(gvars.controller == "BEHRINGER XTOUCH COMPACT"):
+        funcs.midiOutput(64, 1) # MD reset
     gvars.l_spotlightPoints[0].spotlightSwitch(True)
     gvars.l_spotlightPoints[1].spotlightSwitch(False)
     gvars.l_spotlightPoints[2].spotlightSwitch(False)
@@ -229,6 +256,8 @@ def pedal14():
     
 def pedal16():
     print("Pedal 16")
+    if(gvars.controller == "BEHRINGER XTOUCH COMPACT"):
+        funcs.midiOutput(127, 0) # MD reset
     gvars.l_spotlightPoints[0].spotlightSwitch(True)
     gvars.l_spotlightPoints[1].spotlightSwitch(False)
     gvars.l_spotlightPoints[2].spotlightSwitch(False)

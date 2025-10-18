@@ -96,14 +96,12 @@ class Pathway:
 
         self.calculatePathwaySize()
 
-
-
-
 class SpotlightPoint:
     def __init__(self, type):
         self.type = type # 0 MD, 1 ME, 2 V
         self.curPathway = None
         self.curPos = (1, 64) # 1 - 127, inside PathwayBoundaries
+        self.curPosLerp = (100, 64)
         self.curBrightness = 0
         self.curSize = 0
 
@@ -112,7 +110,11 @@ class SpotlightPoint:
         self.pathwayXBorders = (0, 0)
         self.pathwayYBorders = (0, 0)
 
-        self.cooldownCounter = -1 # se maior que -1, thread conta ate gvars.cooldownTimer pra liberar interface
+        self.cooldownCounter = -1 # se maior que -1, thread conta ate gvars.cooldownTime pra liberar interface
+        self.lerpPosCounter = -1 # se maior que -1, thread conta ate gvars.lerpPosTime pra liberar interface
+
+        self.difToTargetX = 0
+        self.difToTargetY = 0
 
     def setCurPathway(self, pathwayId):
         if pathwayId != None:
@@ -155,6 +157,17 @@ class SpotlightPoint:
             self.pathwayXBorders = (-100, -100)
             self.pathwayYBorders = (-100, -100)
 
+    def calculateAndStartLerpCurPos(self, targetX, targetY):
+        curX, curY = self.curPos
+
+        difToTargetX = float((targetX - curX) / gvars.lerpPosTime)
+        difToTargetY = float((targetY - curY) / gvars.lerpPosTime)
+
+        self.difToTargetX = difToTargetX
+        self.difToTargetY = difToTargetY
+
+        self.lerpPosCounter = 1
+        
     def getAbsolutePoint(self):
         curX, curY = self.curPos
         xMin, xMax = self.pathwayXBorders
@@ -184,11 +197,10 @@ class SpotlightPoint:
         cv2.circle(frameD, (pX, pY), radius, color, 4)
         cv2.putText(frameD, str(gvars.d_spotlightTypeName[self.type]), (pX - 10, pY - 10), cv2.FONT_HERSHEY_SIMPLEX, size, color, 1, cv2.LINE_AA)
 
-        if self.cooldownCounter != -1:
+        if (self.cooldownCounter != -1) & (gvars.usingCooldown == True):
             cv2.rectangle(frameD, (pX - 20, pY - 30), (pX + 20, pY + 20), color, 2)
 
         return pX, pY
-    
     
     def spotlightSwitch(self, onoff):
         self.isProjecting = onoff
@@ -202,21 +214,37 @@ class SpotlightPoint:
 
 class MidiValuesStruct:
     def __init__(self):
-        self.c7 = 0 # brightness maos
-        self.c18 = 0 # tamanho manhos
-        # MD
-        self.c3 = 0 # mov no pathway
-        self.c14 = 0 # cima-baixo
-        # ME
-        self.c4 = 0 # mov no pathway
-        self.c15 = 0 # cima-baixo
-        # V
-        self.c5 = 0 # mov no pathway
-        self.c16 = 0 # cima-baixo
-        self.c8 = 0 # brightness
-        self.c19 = 0 # tamanho
+        if gvars.controller == "WORLDE easy control 0":
+            self.c7 = 0 # brightness maos
+            self.c18 = 0 # tamanho manhos
+            # MD
+            self.c3 = 0 # mov no pathway
+            self.c14 = 0 # cima-baixo
+            # ME
+            self.c4 = 0 # mov no pathway
+            self.c15 = 0 # cima-baixo
+            # V
+            self.c5 = 0 # mov no pathway
+            self.c16 = 0 # cima-baixo
+            self.c8 = 0 # brightness
+            self.c19 = 0 # tamanho
 
-        # ----- mov geral
-        self.c12 = 0 # rotaciona
-        self.c13 = 0 # direita-esquerda
-        self.c22 = 0 # cima-baixo
+            # ----- mov geral
+            self.c12 = 0 # rotaciona
+            self.c13 = 0 # direita-esquerda
+            self.c22 = 0 # cima-baixo
+
+        elif gvars.controller == "BEHRINGER XTOUCH COMPACT":
+            # --- Behringer Xtouch Compact ---
+            self.c18 = 0 # brightness maos
+            self.c17 = 0 # tamanho maos
+            ## MD
+            self.c64 = 0 # mov no pathway
+            self.c14 = 0 # cima-baixo
+            ## ME
+            self.c65 = 0 # mov no pathway
+            self.c15 = 0 # cima-baixo
+            ## ----- mov geral
+            self.c67 = 0 # rotaciona
+            self.c66 = 0 # direita-esquerda
+            self.c16 = 0 # cima-baixo
