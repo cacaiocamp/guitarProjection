@@ -160,8 +160,8 @@ class SpotlightPoint:
     def calculateAndStartLerpCurPos(self, targetX, targetY):
         curX, curY = self.curPos
 
-        difToTargetX = float((targetX - curX) / gvars.lerpPosTime)
-        difToTargetY = float((targetY - curY) / gvars.lerpPosTime)
+        difToTargetX = float((targetX - curX) / gvars.lerpPosFrames)
+        difToTargetY = float((targetY - curY) / gvars.lerpPosFrames)
 
         self.difToTargetX = difToTargetX
         self.difToTargetY = difToTargetY

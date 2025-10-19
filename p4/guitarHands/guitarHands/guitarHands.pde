@@ -14,11 +14,12 @@ int pointY = -1;
 int spotlightSize = 80;
 boolean drawing = false;
 
-ItemToTrack[] vecItensToTrack = new ItemToTrack[3];
-int[] spotlightRadiusSize = new int[3];
+ItemToTrack[] vecItensToTrack = new ItemToTrack[2];
+int[] spotlightRadiusSize = new int[2];
 
 void setup() {
   size(640, 480, P3D);
+  frameRate(120);
   
   oscP5 = new OscP5(this, 8000);
   spout = new Spout(this);
@@ -27,7 +28,7 @@ void setup() {
   
   spotlightRadiusSize[0] = spotlightSize;
   spotlightRadiusSize[1] = spotlightSize;
-  spotlightRadiusSize[2] = spotlightSize;
+  //spotlightRadiusSize[2] = spotlightSize;
   
   // prerender spotlights
   for(int index = 0; index < vecItensToTrack.length; index++){

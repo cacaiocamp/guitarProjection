@@ -55,10 +55,36 @@ def lerpPosChangeThread():
                 spotlight.curPos = (spotlight.curPos[0] + spotlight.difToTargetX, spotlight.curPos[1] + spotlight.difToTargetY)
                 spotlight.lerpPosCounter = spotlight.lerpPosCounter + 1
 
-                if spotlight.lerpPosCounter > gvars.lerpPosTime:
+                if spotlight.lerpPosCounter > gvars.lerpPosFrames:
                     spotlight.lerpPosCounter = 0
 
-        time.sleep(0.001)
+        if gvars.changingBrightness:
+            if gvars.brightnessCounter == 0:
+                gvars.brightnessStep = float(gvars.targetBrightness - gvars.curBrightness) / gvars.brightnessStepsTotal
+                gvars.brightnessCounter = 1
+            elif gvars.brightnessCounter == gvars.brightnessStepsTotal:
+                gvars.changingBrightness = False
+                gvars.brightnessCounter = 0
+            
+            gvars.curBrightness = gvars.curBrightness + gvars.brightnessStep
+            gvars.client.send_message("/rh/brightness", gvars.curBrightness)
+            gvars.client.send_message("/lh/brightness", gvars.curBrightness)
+            gvars.brightnessCounter = gvars.brightnessCounter + 1
+        
+        if gvars.changingSize:
+            if gvars.sizeCounter == 0:
+                gvars.sizeStep = float(gvars.targetSize - gvars.curSize) / gvars.sizeStepsTotal
+                gvars.sizeCounter = 1
+            elif gvars.sizeCounter == gvars.sizeStepsTotal:
+                gvars.changingSize = False
+                gvars.sizeCounter = 0
+            
+            gvars.curSize = gvars.curSize + gvars.sizeStep
+            gvars.client.send_message("/rh/size", gvars.curSize)
+            gvars.client.send_message("/lh/size", gvars.curSize)
+            gvars.sizeCounter = gvars.sizeCounter + 1
+
+        time.sleep(0.00833)  # approx 120 fps, following projection code fps
 
 def midiOutput(controlCh, val):
     with mido.open_output(gvars.outportMidi) as outport:
@@ -219,13 +245,19 @@ def midi_input_thread(port_name):
                     elif msg.control == 18:
                         gvars.midiValues.c18 = msg.value
                         convertedVal = abs(float(msg.value/126) - 1)
-                        gvars.client.send_message("/rh/brightness", convertedVal)
-                        gvars.client.send_message("/lh/brightness", convertedVal)
+                        #gvars.client.send_message("/rh/brightness", convertedVal)
+                        #gvars.client.send_message("/lh/brightness", convertedVal)
+                        gvars.targetBrightness = convertedVal
+                        gvars.changingBrightness = True
+                        gvars.brightnessCounter = 0
                     elif msg.control == 17:
                         gvars.midiValues.c17 = msg.value
                         convertedVal = (msg.value + 1)/127
-                        gvars.client.send_message("/rh/size", convertedVal)
-                        gvars.client.send_message("/lh/size", convertedVal)
+                        #gvars.client.send_message("/rh/size", convertedVal)
+                        #gvars.client.send_message("/lh/size", convertedVal)
+                        gvars.targetSize = convertedVal
+                        gvars.changingSize = True
+                        gvars.sizeCounter = 0
                     # Color
                     elif msg.control == 81:
                         if len(gvars.l_spotlightPoints) != 0:

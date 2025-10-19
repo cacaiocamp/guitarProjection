@@ -34,7 +34,21 @@ port = 8000
 client = udp_client.SimpleUDPClient(ip, port)
 
 cooldownTime = 100
-lerpPosTime = 10
+lerpPosFrames = 4
+
+changingBrightness = False
+curBrightness = 0
+targetBrightness = 0
+brightnessStep = 0
+brightnessCounter = 0
+brightnessStepsTotal = 4.0
+
+changingSize = False
+curSize = 0
+targetSize = 0
+sizeStep = 0
+sizeCounter = 0
+sizeStepsTotal = 4.0
 
 pickleLoaded = False
 
