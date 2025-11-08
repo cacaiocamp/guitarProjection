@@ -5,9 +5,12 @@ import spout.*;
 OscP5 oscP5;
 Spout spout;
 
-float colorR = 255;
-float colorG = 255;
-float colorB = 220;
+//float colorR = 255;
+//float colorG = 255;
+//float colorB = 220;
+float colorR = 200.35;
+float colorG = 133.33;
+float colorB = 34.30;
 
 int pointX = -1;
 int pointY = -1;
@@ -19,7 +22,7 @@ int[] spotlightRadiusSize = new int[2];
 
 void setup() {
   size(640, 480, P3D);
-  frameRate(120);
+  frameRate(60);
   
   oscP5 = new OscP5(this, 8000);
   spout = new Spout(this);
@@ -71,6 +74,7 @@ void draw() {
 void drawSpotlight(PGraphics pg, float x, float y, float radius) {
   int centerColor = color(colorR, colorG, colorB); 
   int edgeColor = color(colorR, colorG, colorB, 0); 
+  print(colorR, colorG, colorB);
 
   for (float r = radius; r > 0; r--) {
     float inter = map(r, 0, radius, 1, 0);

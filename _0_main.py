@@ -38,7 +38,7 @@ try:
     lerpingThread.start()
 
     # change to appropriate camera index if needed, use funcs.listCameras() and funcs.searchCameras() to help find it
-    cap = cv2.VideoCapture(1)
+    cap = cv2.VideoCapture(2)
 
     if not cap.isOpened():
         usingCap = False

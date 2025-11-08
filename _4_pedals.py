@@ -206,7 +206,7 @@ def pedal10emeio():
 def pedal12():
     print("Pedal 12")
     if(gvars.controller == "BEHRINGER XTOUCH COMPACT"):
-        funcs.midiOutput(64, 64) # MD reset
+        funcs.midiOutput(64, 1) # MD reset
     gvars.l_spotlightPoints[0].spotlightSwitch(True)
     gvars.l_spotlightPoints[1].spotlightSwitch(False)
     gvars.l_spotlightPoints[2].spotlightSwitch(False)
@@ -214,7 +214,7 @@ def pedal12():
     gvars.l_spotlightPoints[0].setCurPathway(6)
     x, y = gvars.l_spotlightPoints[0].curPos
     gvars.l_spotlightPoints[0].cooldownCounter = 0
-    gvars.l_spotlightPoints[0].curPos = (64, y)
+    gvars.l_spotlightPoints[0].curPos = (1, y)
     gvars.l_spotlightPoints[1].setCurPathway(None)
     gvars.l_spotlightPoints[2].setCurPathway(None)
 

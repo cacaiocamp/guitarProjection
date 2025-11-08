@@ -55,6 +55,8 @@ def lerpPosChangeThread():
                 spotlight.curPos = (spotlight.curPos[0] + spotlight.difToTargetX, spotlight.curPos[1] + spotlight.difToTargetY)
                 spotlight.lerpPosCounter = spotlight.lerpPosCounter + 1
 
+                #print("rh:", spotlight.curPos[0], " || lh:", spotlight.curPos[1], " || counter: ", spotlight.lerpPosCounter)
+
                 if spotlight.lerpPosCounter > gvars.lerpPosFrames:
                     spotlight.lerpPosCounter = 0
 
@@ -84,7 +86,7 @@ def lerpPosChangeThread():
             gvars.client.send_message("/lh/size", gvars.curSize)
             gvars.sizeCounter = gvars.sizeCounter + 1
 
-        time.sleep(0.00833)  # approx 120 fps, following projection code fps
+        time.sleep(0.01666)  # approx 60 fps, following projection code fps
 
 def midiOutput(controlCh, val):
     with mido.open_output(gvars.outportMidi) as outport:
@@ -213,15 +215,17 @@ def midi_input_thread(port_name):
                                 gvars.l_spotlightPoints[0].calculateAndStartLerpCurPos(x, y)
                                 #gvars.l_spotlightPoints[0].curPos = (x, y)
                     elif msg.control == 14:
-                        #lastVal = gvars.midiValues.c14
-                        #gvars.midiValues.c14 = (msg.value + 1) - 63
-                        gvars.midiValues.c14 = msg.value + 1
+                        lastVal = gvars.midiValues.c14
+                        gvars.midiValues.c14 = (msg.value + 1) - 65
+                        #gvars.midiValues.c14 = msg.value + 1
                         if not gvars.resetingVerticaly:
                             if len(gvars.l_spotlightPoints) != 0:
                                 x, y = gvars.l_spotlightPoints[0].curPos
-                                y = gvars.midiValues.c14
-                                #verticalChange = y + ((lastVal - gvars.midiValues.c14) * - 1)
-                                gvars.l_spotlightPoints[0].calculateAndStartLerpCurPos(x, y)
+                                #y = gvars.midiValues.c14
+                                verticalChange = y + ((lastVal - gvars.midiValues.c14) * - 1)
+                                
+                                #print(gvars.midiValues.c14, " || ", lastVal, " || ", verticalChange, " || ", y)
+                                gvars.l_spotlightPoints[0].calculateAndStartLerpCurPos(x, verticalChange)
                                 #gvars.l_spotlightPoints[0].curPos = (x, verticalChange)
                     # ME-------------------------------------------------------------
                     elif msg.control == 65:
